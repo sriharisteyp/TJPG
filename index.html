@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TJPG | JPG Image Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-image: linear-gradient(#6ab7ff, #00d084);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+        }
+
+        section {
+            text-align: center;
+            background-image: linear-gradient(#ff6b6b, #ffb166);
+            height: auto;
+            padding: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #uploadLabel {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #uploadLabel:hover {
+            background-color: #45a049;
+        }
+
+        #convertBtn,
+        #downloadAllBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        #convertBtn:hover,
+        #downloadAllBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #outputContainer {
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .thumbnail {
+            margin: 10px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            width: 150px;
+            box-sizing: border-box;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .thumbnail:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: auto;
+        }
+
+        .downloadLink {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .downloadLink:hover {
+            background-color: #0056b3;
+        }
+
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <section>
+            <h1>Any To JPG Image Converter</h1>
+            <label for="fileInput" id="uploadLabel">Upload Images</label>
+            <input type="file" id="fileInput" accept=".jpg, .jpeg, .png, .gif" multiple>
+            <button id="convertBtn">Convert</button>
+            <button id="downloadAllBtn">Download All</button>
+            <div id="outputContainer"></div>
+
+            <div id="alertBox1" class="alert" style="display: none;">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>Error!</strong> Please select an images for converting.
+            </div>
+
+            <div id="alertBox" class="alert" style="display: none;">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>Error!</strong> Please select up to 4 images for converting.
+            </div>
+
+            <div class="pagination" style="display: none;">
+                <button id="prevBtn">Previous</button>
+                <button id="nextBtn">Next</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', () => {
+                convertImages();
+            });
+
+            function convertImages() {
+                const fileInput = document.getElementById('fileInput');
+                const outputContainer = document.getElementById('outputContainer');
+
+                if (fileInput.files.length === 0) {
+                    document.getElementById('alertBox1').style.display = 'block';
+                    return;
+                } else {
+                    document.getElementById('alertBox').style.display = 'none';
+                }
+
+                if (fileInput.files.length > 4) {
+                    document.getElementById('alertBox').style.display = 'block';
+                    return;
+                }
+
+                outputContainer.innerHTML = '';
+
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        const img = new Image();
+                        img.src = event.target.result;
+
+                        const thumbnailContainer = document.createElement('div');
+                        thumbnailContainer.className = 'thumbnail';
+
+                        const thumbnailImg = document.createElement('img');
+                        thumbnailImg.src = event.target.result;
+
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = event.target.result;
+                        downloadLink.download = file.name.replace(/\.[^/.]+$/, ".jpg");
+                        downloadLink.textContent = 'Download';
+                        downloadLink.className = 'downloadLink';
+
+                        thumbnailContainer.appendChild(thumbnailImg);
+                        thumbnailContainer.appendChild(downloadLink);
+                        outputContainer.appendChild(thumbnailContainer);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+
+                // Show pagination if there are more than a certain number of images
+                const numImages = fileInput.files.length;
+                const maxImagesPerPage = 10; // Adjust as needed
+                const numPages = Math.ceil(numImages / maxImagesPerPage);
+                const pagination = document.querySelector('.pagination');
+                if (numPages > 1) {
+                    pagination.style.display = 'block';
+                } else {
+                    pagination.style.display = 'none';
+                }
+            }
+
+    </script>
+</body>
+</body>
+
+</html>
