@@ -155,6 +155,12 @@
         .pagination button:hover {
             background-color: #0056b3;
         }
+        @media only screen and (max-width: 600px) {
+            /* Styles for phone resolution */
+            #outputContainer .thumbnail:nth-child(n+3) {
+                display: none; /* Hide thumbnails beyond the second one */
+            }
+        }
     </style>
 </head>
 
@@ -163,7 +169,7 @@
         <section>
             <h1>Any To JPG Image Converter</h1>
             <label for="fileInput" id="uploadLabel">Upload Images</label>
-            <input type="file" id="fileInput" accept=".jpg, .jpeg, .png, .gif" multiple>
+            <input type="file" id="fileInput" accept="." multiple>
             <button id="convertBtn">Convert</button>
             <button id="downloadAllBtn">Download All</button>
             <div id="outputContainer"></div>
@@ -175,7 +181,7 @@
 
             <div id="alertBox" class="alert" style="display: none;">
                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>Error!</strong> Please select up to 4 images for converting.
+                <strong>Error!</strong> Please select up to 4 images for Pc and 2 Images for Mobile for converting.
             </div>
 
             <div class="pagination" style="display: none;">
@@ -184,7 +190,7 @@
             </div>
         </section>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.getElementById('fileInput').addEventListener('change', () => {
                 convertImages();
@@ -237,18 +243,32 @@
                     reader.readAsDataURL(file);
                 }
 
-                // Show pagination if there are more than a certain number of images
-                const numImages = fileInput.files.length;
-                const maxImagesPerPage = 10; // Adjust as needed
-                const numPages = Math.ceil(numImages / maxImagesPerPage);
-                const pagination = document.querySelector('.pagination');
-                if (numPages > 1) {
-                    pagination.style.display = 'block';
-                } else {
-                    pagination.style.display = 'none';
-                }
+                
             }
+            let downloadClicked = localStorage.getItem('downloadClicked') === 'true' ? true : false;
 
+                document.getElementById('downloadAllBtn').addEventListener('click', () => {
+                    if (!downloadClicked) {
+                        Swal.fire({
+                            position: "top-start",
+                            icon: "question",
+                            title: "Please Allow Multile Download",
+                            showConfirmButton: false,
+                        });
+                        downloadClicked = true;
+                        localStorage.setItem('downloadClicked', 'true'); // Save state in local storage
+                    }
+                    downloadAllConvertedImages();
+                });
+
+                function downloadAllConvertedImages() {
+                    const thumbnails = document.querySelectorAll('.thumbnail');
+
+                    thumbnails.forEach(thumbnail => {
+                        const downloadLink = thumbnail.querySelector('.downloadLink');
+                        downloadLink.click(); // Trigger download for each thumbnail
+                    });
+                }
     </script>
 </body>
 </body>
